@@ -16,7 +16,6 @@ async def battle_cmd(_, m: Message):
     if len(m.command) < 2 or "vs" not in m.text.lower():
         return await m.reply_text("❌ <b>Usage:</b> <code>/battle song1 vs song2</code>\nExample: <code>/battle Kesariya vs Tum Hi Ho</code>")
     
-    # Parse songs
     query = m.text.split(None, 1)[1]
     parts = query.lower().split(" vs ")
     if len(parts) != 2:
@@ -60,9 +59,7 @@ async def battle_cmd(_, m: Message):
     await play_stream(m.chat.id, info2["url"], False, seek_time=0)
     await asyncio.sleep(15)
     
-    # End battle
-    try:
-        await status.delete()
+    try: await status.delete()
     except: pass
     
     if m.chat.id in active_battles:
@@ -72,8 +69,7 @@ async def battle_cmd(_, m: Message):
         
         if winner:
             await m.reply_text(f"🏆 <b>WINNER:</b> {winner['title']}\nWith {max(v1, v2)} votes!")
-            # Play the full winner song
-            track = Track(winner["title"], winner["url"], winner["duration"], winner["thumbnail"], m.from_user.first_name, m.from_user.id, False)
+            track = Track(winner["title"], winner["url"], winner["duration"], winner["thumbnail"], m.from_user.first_name, m.from_user.id, False, video_id=winner.get("video_id", ""))
             q = get_queue(m.chat.id)
             q.now_playing = track
             q.start_time = asyncio.get_event_loop().time()
