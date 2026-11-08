@@ -51,11 +51,9 @@ async def battle_cmd(_, m: Message):
         [InlineKeyboardButton(f"🅰️ Vote {info1['title'][:15]}", callback_data="vote_1"), InlineKeyboardButton(f"🅱️ Vote {info2['title'][:15]}", callback_data="vote_2")]
     ]))
     
-    # Play 15 seconds of Song 1
     await play_stream(m.chat.id, info1["url"], False, seek_time=0)
     await asyncio.sleep(15)
     
-    # Play 15 seconds of Song 2
     await play_stream(m.chat.id, info2["url"], False, seek_time=0)
     await asyncio.sleep(15)
     

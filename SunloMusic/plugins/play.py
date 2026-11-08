@@ -26,7 +26,6 @@ async def _check_admin(m):
     return False
 
 async def start_play(client, m, query: str, video: bool = False):
-    """Reusable play core. Used by /play, /vplay, /splay, /audiobook."""
     if not m.from_user: return await m.reply_text("❌ Anonymous admins cannot use this.")
 
     uid = m.from_user.id
@@ -141,7 +140,6 @@ async def start_play(client, m, query: str, video: bool = False):
     if m.chat.id in KARAOKE_CHATS: q.karaoke_task = asyncio.create_task(start_live_karaoke(bot, m.chat.id, track.title, track.duration, q))
 
     asyncio.create_task(add_recent(m.chat.id, {"title": track.title, "url": track.url, "duration": track.duration, "thumbnail": track.thumbnail, "requester": track.requester, "requester_id": track.requester_id, "video": track.video}))
-
 
 @bot.on_message(filters.command(["play", "vplay"]) & filters.group)
 @catch_errors

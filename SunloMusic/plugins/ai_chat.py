@@ -7,12 +7,16 @@ from groq import Groq
 
 groq_client = Groq(api_key=config.GROQ_API_KEY) if config.GROQ_API_KEY else None
 
-@bot.on_message(filters.group & filters.text & ~filters.command(["play", "vplay", "skip", "stop", "pause", "resume", "seek", "song", "video", "search", "help", "allcommand", "settings", "id", "gstats", "settag", "clearreactions", "delreaction"]))
+@bot.on_message(filters.group & filters.text & ~filters.command([
+    "play", "vplay", "skip", "stop", "pause", "resume", "seek", "song", "video", 
+    "search", "help", "allcommand", "settings", "id", "gstats", "settag", 
+    "clearreactions", "delreaction", "trending", "radio", "voteplay", "splay", 
+    "audiobook", "battle"
+]))
 @catch_errors
 async def ai_chat_handler(_, m: Message):
     if not groq_client or not config.GROQ_API_KEY: return
     
-    # Trigger only if bot is mentioned or replied
     is_mention = m.text and f"@{bot.me.username}" in m.text
     is_reply = m.reply_to_message and m.reply_to_message.from_user and m.reply_to_message.from_user.id == bot.me.id
     

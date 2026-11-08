@@ -24,7 +24,6 @@ def _search_ytdlp_sync(query: str):
     except Exception as e: LOGGER.error(f"yt-dlp search error: {e}")
     return None
 
-# ✅ FIXED: Added missing function for trending.py
 def _search_ytdlp_multi_sync(query: str, limit: int = 10):
     try:
         ydl_opts = {"quiet": True, "no_warnings": True, "noplaylist": True, "extract_flat": True, "nocheckcertificate": True, "extractor_args": EXTRACTOR_ARGS}
@@ -38,9 +37,8 @@ def _search_ytdlp_multi_sync(query: str, limit: int = 10):
                         thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg" if vid_id else ""
                         results.append({"title": e.get("title", "Unknown"), "video_id": vid_id, "url": f"https://youtube.com/watch?v={vid_id}", "duration": int(e.get("duration") or 0), "thumbnail": thumb})
             return results
-    except Exception as e:
-        LOGGER.error(f"yt-dlp multi search error: {e}")
-        return []
+    except Exception as e: LOGGER.error(f"yt-dlp multi search error: {e}")
+    return []
 
 async def _download_shruti(video_id: str, is_video: bool) -> str | None:
     if not video_id: return None
