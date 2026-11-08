@@ -2,15 +2,23 @@ from functools import wraps
 from pyrogram import enums
 from pyrogram.types import Message, CallbackQuery
 from SunloMusic.config import config
-from SunloMusic.database import is_sudo, get_chat
+from SunloMusic.database import is_sudo
 from SunloMusic.texts import NO_SUDO_TEXT, NO_ADMIN_TEXT
-from SunloMusic.error_handler import log_error_to_group
+from SunloMusic.logger import LOGGER
 
 def catch_errors(func):
     @wraps(func)
     async def wrapper(client, update, *args, **kwargs):
-        try: return await func(client, update, *args, **kwargs)
-        except Exception as e: await log_error_to_group(update, e)
+        try: 
+            return await func(client, update, *args, **kwargs)
+        except Exception as e:
+            LOGGER.error(f"Command Error in {func.__name__}: {e}")
+            if isinstance(update, Message):
+                try: await update.reply_text(f"❌ <b>Error:</b> <code>{str(e)[:200]}</code>")
+                except: pass
+            elif isinstance(update, CallbackQuery):
+                try: await update.answer(f"❌ Error: {str(e)[:100]}", show_alert=True)
+                except: pass
     return wrapper
 
 def sudo_only(func):
@@ -19,7 +27,6 @@ def sudo_only(func):
         user = update.from_user
         if not user: return
         
-        # Direct owner/sudo check
         if user.id == config.OWNER_ID or user.id in config.sudo_list:
             return await func(client, update, *args, **kwargs)
             
@@ -37,6 +44,7 @@ def admin_only(func):
     async def wrapper(client, message: Message, *args, **kwargs):
         if not message.from_user: return
         
+        # ✅ OWNER / SUDO BYPASS
         if message.from_user.id == config.OWNER_ID or message.from_user.id in config.sudo_list:
             return await func(client, message, *args, **kwargs)
             
@@ -54,5 +62,6 @@ def admin_only(func):
                                  member.privileges.can_manage_chat
                     if can_manage: return await func(client, message, *args, **kwargs)
             except Exception: pass
+            
         await message.reply_text(NO_ADMIN_TEXT)
     return wrapper
