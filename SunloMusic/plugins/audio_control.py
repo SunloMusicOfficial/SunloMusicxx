@@ -6,7 +6,16 @@ from SunloMusic.decorators import catch_errors, admin_only
 from SunloMusic.queues import get_queue
 from SunloMusic.calls import play_stream, AUDIO_CONTROLS
 
-@bot.on_message(filters.command("speed") & filters.group)
+def cmd_filter(cmd_names: list):
+    async def func(_, __, m: Message):
+        if not m.text: return False
+        first_word = m.text.split()[0].lower()
+        if "@" in first_word:
+            first_word = first_word.split("@")[0]
+        return any(f"/{cmd}" == first_word for cmd in cmd_names)
+    return filters.create(func)
+
+@bot.on_message(cmd_filter(["speed"]) & filters.group)
 @catch_errors
 @admin_only
 async def speed_cmd(_, m: Message):
@@ -40,7 +49,7 @@ async def speed_cmd(_, m: Message):
     
     await status.edit_text(f"✅ <b>Speed: {speed}x</b> — Applied!")
 
-@bot.on_message(filters.command("volume") & filters.group)
+@bot.on_message(cmd_filter(["volume"]) & filters.group)
 @catch_errors
 @admin_only
 async def volume_cmd(_, m: Message):
@@ -73,7 +82,7 @@ async def volume_cmd(_, m: Message):
     
     await status.edit_text(f"✅ <b>Volume: {vol}%</b> — Applied!")
 
-@bot.on_message(filters.command("eq") & filters.group)
+@bot.on_message(cmd_filter(["eq"]) & filters.group)
 @catch_errors
 @admin_only
 async def eq_cmd(_, m: Message):

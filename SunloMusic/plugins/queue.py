@@ -6,7 +6,16 @@ from SunloMusic.decorators import admin_only, catch_errors
 from SunloMusic.formatters import format_duration
 from SunloMusic.queues import get_queue
 
-@bot.on_message(filters.command("queue") & filters.group)
+def cmd_filter(cmd_names: list):
+    async def func(_, __, m: Message):
+        if not m.text: return False
+        first_word = m.text.split()[0].lower()
+        if "@" in first_word:
+            first_word = first_word.split("@")[0]
+        return any(f"/{cmd}" == first_word for cmd in cmd_names)
+    return filters.create(func)
+
+@bot.on_message(cmd_filter(["queue"]) & filters.group)
 @catch_errors
 async def queue_cmd(_, m: Message):
     q = get_queue(m.chat.id)
@@ -18,8 +27,7 @@ async def queue_cmd(_, m: Message):
         for i, t in enumerate(q.queue[:10], 1): text += f"{i}. {t.title} ({format_duration(t.duration)})\n"
     await m.reply_text(text)
 
-# ✅ NEW: EXPORT COMMAND
-@bot.on_message(filters.command("export") & filters.group)
+@bot.on_message(cmd_filter(["export"]) & filters.group)
 @catch_errors
 async def export_cmd(_, m: Message):
     q = get_queue(m.chat.id)
@@ -57,7 +65,7 @@ async def export_cmd(_, m: Message):
             try: os.remove(file_path)
             except: pass
 
-@bot.on_message(filters.command("clear") & filters.group)
+@bot.on_message(cmd_filter(["clear"]) & filters.group)
 @catch_errors
 @admin_only
 async def clear_cmd(_, m: Message):
@@ -72,7 +80,7 @@ async def clear_cmd(_, m: Message):
     q.queue.clear()
     await m.reply_text("🗑 <b>Queue Cleared!</b>")
 
-@bot.on_message(filters.command("shuffle") & filters.group)
+@bot.on_message(cmd_filter(["shuffle"]) & filters.group)
 @catch_errors
 @admin_only
 async def shuffle_cmd(_, m: Message):
