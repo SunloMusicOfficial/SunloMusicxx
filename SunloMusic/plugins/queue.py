@@ -5,10 +5,12 @@ from SunloMusic.bot import bot
 from SunloMusic.decorators import admin_only, catch_errors
 from SunloMusic.formatters import format_duration
 from SunloMusic.queues import get_queue
+from SunloMusic.logger import LOGGER
 
 @bot.on_message(filters.regex(r"^/queue(@\w+)?(\s|$)") & filters.group)
 @catch_errors
 async def queue_cmd(_, m: Message):
+    LOGGER.info(f"✅ /queue command received in chat {m.chat.id}")
     q = get_queue(m.chat.id)
     if not q.now_playing and not q.queue: return await m.reply_text("📭 <b>Queue is empty.</b>")
     text = "<b>📋 Current Queue</b>\n\n"
@@ -21,6 +23,7 @@ async def queue_cmd(_, m: Message):
 @bot.on_message(filters.regex(r"^/export(@\w+)?(\s|$)") & filters.group)
 @catch_errors
 async def export_cmd(_, m: Message):
+    LOGGER.info(f"✅ /export command received in chat {m.chat.id}")
     q = get_queue(m.chat.id)
     if not q.now_playing and not q.queue:
         return await m.reply_text("📭 <b>Queue is empty, nothing to export.</b>")
@@ -60,6 +63,7 @@ async def export_cmd(_, m: Message):
 @catch_errors
 @admin_only
 async def clear_cmd(_, m: Message):
+    LOGGER.info(f"✅ /clear command received in chat {m.chat.id}")
     q = get_queue(m.chat.id)
     if not q.queue: return await m.reply_text("📭 <b>Queue is already empty.</b>")
     
@@ -75,6 +79,7 @@ async def clear_cmd(_, m: Message):
 @catch_errors
 @admin_only
 async def shuffle_cmd(_, m: Message):
+    LOGGER.info(f"✅ /shuffle command received in chat {m.chat.id}")
     q = get_queue(m.chat.id)
     if not q.queue: return await m.reply_text("📭 <b>Queue is empty.</b>")
     random.shuffle(q.queue)
